@@ -100,13 +100,7 @@ void freeNode(struct Node* node) {
     if (node == NULL) {
         return;
     } else {
-        if (node->packet != NULL) {
-            free(node->packet->transactions);
-            node->packet->transactions = NULL;
-            free(node->packet);    
-            node->packet = NULL;
-        }
-
+        free(node->packet);    
         node->next = NULL;        
         free(node);
     }
@@ -130,7 +124,7 @@ void freeQueue(struct Queue* q) {
 void printQueue(struct Queue* q) {
     if(q->head->next == NULL) {
         printf("queue is empty\n");
-    }
+    } 
 
     struct Node* curNode = q->head->next;
     while (curNode != NULL) {
@@ -142,11 +136,10 @@ void printQueue(struct Queue* q) {
 void printNode(struct Node* node) {
     if (node == NULL) {
         printf("NULL NODE\n");
+    } else if (node->packet == NULL) {
+        printf("packet is NULL\n");
     }
 
-    printf("Customer ID: %d\n", node->packet->id);
-    for (int i = 0; i < node->packet->numTrans; i++) {
-        printf("--> trans[%d]: %f\n", i, node->packet->transactions[i]);
-    }
+    printf("%s\n", node->packet->line);
 }
 

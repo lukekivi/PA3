@@ -52,14 +52,10 @@ void bookeepingCode();
 
 /**
  * Customer transaction data packet.
- * @param id           customer id
- * @param transactions an array of transaction values
- * @param numTrans     size of transactions
+ * @param line one line from an input file consisting of customer id and then transaction data seperated by commas
  */
 struct Packet {
-    int id;
-    float* transactions;
-    int numTrans;
+    char* line;
 };
 
 /**
