@@ -53,6 +53,9 @@ void bookeepingCode(){
 
 /*** other functions ***/
 
+
+/** Queue Function **/
+
 /* Return a pointer to an initialized queue */
 struct Queue* initQueue() {
     struct Queue* q = (struct Queue*) malloc(sizeof(struct Queue));
@@ -117,6 +120,45 @@ void freeQueue(struct Queue* q) {
 
     free(q);
 }
+
+/** End Queue Functions **/
+
+/* Parse the command line argument for modes */
+int parseModeArg(char* str) {
+    int len = strlen(str);
+
+    if (len > 3 || str[0] != '-') {
+        return -1;
+    }
+
+    int mode = 0;
+
+    for (int i = 1; i < len; i++) {
+        if (str[i] == 'p') {
+            mode += 1;
+        } else if (str[i] == 'b') {
+            mode += 2;
+        } else {
+            return -1;
+        }
+    }
+
+    return mode;
+}
+
+/* Check a string to see if it is strictly composed of digits */
+int isDigits(char* str) {
+    int len = strlen(str);
+
+    for (int i = 0; i < len; i++) {
+        if (str[i] < '0' || str[i] > '9') {
+            return -1;
+        }
+    }
+
+    return 1;
+}
+
 
 
 /*** Debugging Functions ***/
