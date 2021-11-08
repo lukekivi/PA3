@@ -20,6 +20,12 @@
 /* shared array definition */
 extern double balance[acctsNum];
 
+/* shared queue of nodes containing data packets */
+extern struct Queue q;
+
+/* sempahore */
+sem_t sem_mutex;
+
 /* file I/O */
 /**
  * Get a pointer to a opened file based on the file name

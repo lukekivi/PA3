@@ -68,11 +68,27 @@ int main(int argc, char *argv[]){
 
     bookeepingCode();
     
-    //TODO: Initialize global variables, like shared queue
-    
-    //TODO: create producer and consumer threads
+    // Initialize global variables, like shared queue
+    q = initQueue();
 
-    //TODO: wait for all threads to complete execution
+    sem_init(&sem_mutex, 0, 0);
+
+    // Create producer and consumer threads
+    pthread_t producerThread;
+    pthread_t consumerThreads[nConsumers];
+
+    pthread_create(&producerThread, NULL, producer, NULL);
+
+    for (int i = 0; i < nConsumers; i++) {
+        pthread_create(&consumerThreads[i], NULL, consumer, NULL);
+    }
+
+    // wait for all threads to complete execution
+    pthread_join(producerThread, NULL);
+
+    for (int i = 0; i < nConsumers; i++) {
+        pthread_join(consumerThreads[i], NULL);
+    }
     
     //Write the final output
     writeBalanceToFiles();
