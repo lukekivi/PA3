@@ -68,6 +68,8 @@ struct Node {
     struct Packet* packet;
 };
 
+/** Queue Stuff **/
+
 /**
  * Queue for nodes that carry packets
  * @param tail where nodes are dequeued
@@ -110,6 +112,22 @@ void freeNode(struct Node* node);
  * @param q    the queue
  */
 void freeQueue(struct Queue* q);
+
+/** End Queue Stuff **/
+
+/**
+ * @brief Parse out command line argument that starts with '-'
+ * @param str a string that starts with '-' that presumably contains some combination of p & b
+ * @return -1 if invalid, 1 if p, 2 if b, and 3 if both
+ */
+int parseModeArg(char* str);
+
+/**
+ * @brief Check if a string is composed strictly of digits
+ * @param str a string
+ * @return -1 if a non-digit character was found, 1 if str is composed of digits
+ */
+int isDigits(char* str);
 
 /* Debugging functions */ 
 
