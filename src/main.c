@@ -70,9 +70,9 @@ int main(int argc, char *argv[]){
     
     // Initialize global variables, like shared queue
 
-    FILE* fd = fopen(path, "r");
+    FILE* fp = fopen(path, "r");
 
-    if (fd == NULL) {
+    if (fp == NULL) {
         fprintf(stderr, "ERROR: failed to open file \"%s\"\n", path);
         exit(EXIT_FAILURE);
     }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
     pthread_t producerThread;
     pthread_t consumerThreads[nConsumers];
 
-    pthread_create(&producerThread, NULL, producer, NULL);
+    pthread_create(&producerThread, NULL, producer, fp);
 
     for (int i = 0; i < nConsumers; i++) {
         pthread_create(&consumerThreads[i], NULL, consumer, NULL);
