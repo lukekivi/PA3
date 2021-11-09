@@ -69,7 +69,15 @@ int main(int argc, char *argv[]){
     bookeepingCode();
     
     // Initialize global variables, like shared queue
-    q = initQueue();
+
+    FILE* fd = fopen(path, "r");
+
+    if (fd == NULL) {
+        fprintf(stderr, "ERROR: failed to open file \"%s\"\n", path);
+        exit(EXIT_FAILURE);
+    }
+
+    struct Queue* q = initQueue();
 
     sem_init(&sem_mutex, 0, 0);
 
@@ -84,9 +92,11 @@ int main(int argc, char *argv[]){
     }
 
     // wait for all threads to complete execution
+    printf("launching producer\n");
     pthread_join(producerThread, NULL);
 
     for (int i = 0; i < nConsumers; i++) {
+        printf("launching consumer %d\n", i);
         pthread_join(consumerThreads[i], NULL);
     }
     
