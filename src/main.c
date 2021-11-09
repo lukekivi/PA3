@@ -102,6 +102,8 @@ int main(int argc, char *argv[]){
     
     //Write the final output
     writeBalanceToFiles();
-    
+
+    fclose(fp);
+
     return 0; 
 }
