@@ -13,12 +13,19 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <semaphore.h>
 
 #define chunkSize 1024
 #define acctsNum 1000
 
 /* shared array definition */
 extern double balance[acctsNum];
+
+/* shared queue of nodes containing data packets */
+extern struct Queue* q;
+
+/* sempahore */
+sem_t sem_mutex;
 
 /* file I/O */
 /**

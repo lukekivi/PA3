@@ -68,11 +68,37 @@ int main(int argc, char *argv[]){
 
     bookeepingCode();
     
-    //TODO: Initialize global variables, like shared queue
-    
-    //TODO: create producer and consumer threads
+    // Initialize global variables, like shared queue
 
-    //TODO: wait for all threads to complete execution
+    FILE* fp = fopen(path, "r");
+
+    if (fp == NULL) {
+        fprintf(stderr, "ERROR: failed to open file \"%s\"\n", path);
+        exit(EXIT_FAILURE);
+    }
+
+    struct Queue* q = initQueue();
+
+    sem_init(&sem_mutex, 0, 0);
+
+    // Create producer and consumer threads
+    pthread_t producerThread;
+    pthread_t consumerThreads[nConsumers];
+
+    pthread_create(&producerThread, NULL, producer, fp);
+
+    for (int i = 0; i < nConsumers; i++) {
+        pthread_create(&consumerThreads[i], NULL, consumer, NULL);
+    }
+
+    // wait for all threads to complete execution
+    printf("launching producer\n");
+    pthread_join(producerThread, NULL);
+
+    for (int i = 0; i < nConsumers; i++) {
+        printf("launching consumer %d\n", i);
+        pthread_join(consumerThreads[i], NULL);
+    }
     
     //Write the final output
     writeBalanceToFiles();
