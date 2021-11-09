@@ -79,7 +79,8 @@ int main(int argc, char *argv[]){
 
     struct Queue* q = initQueue();
 
-    sem_init(&sem_mutex, 0, 0);
+    sem_init(&mutex, 0, 1);
+    sem_init(&staged, 0, 0);
 
     // Create producer and consumer threads
     pthread_t producerThread;

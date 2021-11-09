@@ -24,8 +24,9 @@ extern double balance[acctsNum];
 /* shared queue of nodes containing data packets */
 extern struct Queue* q;
 
-/* sempahore */
-sem_t sem_mutex;
+/* sempahores */
+sem_t mutex;         // Queue is being modified
+sem_t staged;            // A producer signals when a package was staged in the queue
 
 /* file I/O */
 /**
