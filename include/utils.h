@@ -24,9 +24,13 @@ extern double balance[acctsNum];
 /* shared queue of nodes containing data packets */
 extern struct Queue* q;
 
+/* mode of the program - set by flags passed as arguments to main */
+extern int mode;
+
 /* sempahores */
-sem_t mutex;         // Queue is being modified
+sem_t mutex;             // Queue is being modified
 sem_t staged;            // A producer signals when a package was staged in the queue
+sem_t queueNodes;        // Used when buffer size is specified - mode 2 or 3
 
 /* file I/O */
 /**

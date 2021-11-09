@@ -81,6 +81,10 @@ int main(int argc, char *argv[]){
 
     sem_init(&mutex, 0, 1);
     sem_init(&staged, 0, 0);
+    
+    if (mode == 2 || mode == 3) {
+        sem_init(&queueNodes, 0, queueBufferSize);
+    }
 
     // Create producer and consumer threads
     pthread_t producerThread;
