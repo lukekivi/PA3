@@ -16,7 +16,7 @@ void *producer(void *arg){
 
     FILE * fd_in = (FILE*)arg; //  file we are reading from; will be passed in
     ssize_t nread;
-    char buffer[chunkSize]; // chunk size for now
+    char* buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     size_t len = chunkSize;
     int lineCount = 0;
 
@@ -28,37 +28,34 @@ void *producer(void *arg){
       p->line = buffer;
       p->lineCount = lineCount;
 
-      // Testing to see that the line and packet are the same.
-      printf("Line: %s", buffer);
-      printf("Packet: %s", p->line);
-
       struct Node* n = (struct Node*)malloc(sizeof(struct Node));
       n->next = NULL;
       n->packet = p;
-
-      // Testing to see that node succesfully copied.
-      printf("Node: %s", n->packet->line);
 
       sem_wait(&mutex);
       enqueue(q, n);
       sem_post(&mutex);
       sem_post(&staged);
-      free(n);
-      free(p);
+ 
+      buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     }
-
-    //When reaching the end of the file, send EOF message
-    printf("Reached EOF.\n");
-    printf("Printing queue:\n");
-    // Print queue for testing.
-    printQueue(q);
 
     for (int i = 0; i < nConsumers; i++) {
       struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
       struct Node* n = (struct Node*) malloc (sizeof(struct Node));
+    
+      p->lineCount = -1;
+      p->line = NULL;
+      n->packet = p;
+      n->next = NULL;
 
-      p->lineCount = lineCount;
+      sem_post(&mutex);
+      sem_post(&staged);
+      sem_wait(&mutex);
+      enqueue(q, n);
     }
+
+    printQueue(q);
 
     // cleanup and exit
     return NULL;

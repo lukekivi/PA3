@@ -10,8 +10,50 @@ void writeBalanceToFiles(void) {
     // TODO: write total balance change
 }
 
-int main(int argc, char *argv[]){
-    int nConsumers = 0;            // Number of consumer threads to be created.
+void testCaseThree() {
+
+    q = initQueue();
+
+    for (int i = 0; i < 3; i++) {
+        struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
+
+        char* buffer = (char*) malloc(sizeof(char)*10);
+
+        sprintf(buffer, "%d,%d", i, i); 
+
+        p->line = buffer;
+        p->lineCount = 1;
+
+        struct Node* n = (struct Node*) malloc(sizeof(struct Node));
+
+        n->packet = p;
+        n->next = NULL;
+
+        printf("*** enqueue 0\n");
+        enqueue(q, n);
+        printQueue(q);
+
+
+    }
+  
+    for (int i = 0; i < 3; i++) {
+        struct Node* recNode = NULL;
+
+        printf("*** dequeue %d\n", i);
+        recNode = dequeue(q);
+        printNode(recNode);
+        printf("Rest of queue: \n");
+        freeNode(recNode);
+        printQueue(q);
+    }
+
+    
+    freeQueue(q);
+}
+
+int main(int argc, char *argv[]) {
+
+    nConsumers = 0;            // Number of consumer threads to be created.
     char* path = NULL;             // Path of input file
     int mode = 0;                  // App mode that specifies use of bounded buffer or log output
     int queueBufferSize = -1;      // initialized with an invalid value
@@ -77,7 +119,7 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
     }
 
-    struct Queue* q = initQueue();
+    q = initQueue();
 
     sem_init(&mutex, 0, 1);
     sem_init(&staged, 0, 0);

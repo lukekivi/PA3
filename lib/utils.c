@@ -1,5 +1,22 @@
 #include "utils.h"
 
+/** Define globals **/
+/* shared array definition */
+double balance[acctsNum];
+
+/* shared queue of nodes containing data packets */
+struct Queue* q;
+
+/* mode of the program - set by flags passed as arguments to main */
+int mode;
+
+int nConsumers;
+
+/* sempahores */
+sem_t mutex;             
+sem_t staged;            
+sem_t queueNodes;        
+
 // pthread.h included in header.h
 
 /* File operations */
@@ -103,7 +120,10 @@ void freeNode(struct Node* node) {
     if (node == NULL) {
         return;
     } else {
-        free(node->packet);    
+        if (node->packet != NULL) {
+            free(node->packet->line);
+            free(node->packet);    
+        }
         node->next = NULL;        
         free(node);
     }
@@ -181,7 +201,10 @@ void printNode(struct Node* node) {
     } else if (node->packet == NULL) {
         printf("packet is NULL\n");
     }
-
-    printf("%s\n", node->packet->line);
+    if(node->packet->line == NULL) {
+        printf("EOF Node\n");   
+    } else {
+        printf("%s", node->packet->line); 
+    }
 }
 

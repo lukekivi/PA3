@@ -27,10 +27,12 @@ extern struct Queue* q;
 /* mode of the program - set by flags passed as arguments to main */
 extern int mode;
 
+extern int nConsumers;
+
 /* sempahores */
-sem_t mutex;             // Queue is being modified
-sem_t staged;            // A producer signals when a package was staged in the queue
-sem_t queueNodes;        // Used when buffer size is specified - mode 2 or 3
+extern sem_t mutex;             // Queue is being modified
+extern sem_t staged;            // A producer signals when a package was staged in the queue
+extern sem_t queueNodes;        // Used when buffer size is specified - mode 2 or 3
 
 /* file I/O */
 /**
