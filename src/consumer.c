@@ -7,11 +7,11 @@
  */
 void parse(char *line){
     
-    // TODO: get customer id
+    // get customer id
 
-    // TODO: sum up transactions
+    // sum up transactions
 
-    // TODO: update the global array
+    // update the global array
 
 
 }
@@ -20,10 +20,20 @@ void parse(char *line){
 // consumer function
 void *consumer(void *arg){
     
-    //TODO: keep reading from queue and process the data
-    // feel free to change
+    // keep reading from queue and process the data
     while(1){
-        //parse();
+        sem_wait(&staged);
+        sem_wait(&mutex);
+        struct Node* n = dequeue(q);
+        sem_post(&mutex);
+
+        if (n->packet->lineCount == -1) {
+            return NULL;
+        }
+
+        printf("consumer %d\n", n->packet->lineCount);
+
+        free(n);
     }
     
     return NULL; 

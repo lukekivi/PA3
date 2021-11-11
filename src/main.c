@@ -10,50 +10,9 @@ void writeBalanceToFiles(void) {
     // TODO: write total balance change
 }
 
-void testCaseThree() {
-
-    q = initQueue();
-
-    for (int i = 0; i < 3; i++) {
-        struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
-
-        char* buffer = (char*) malloc(sizeof(char)*10);
-
-        sprintf(buffer, "%d,%d", i, i); 
-
-        p->line = buffer;
-        p->lineCount = 1;
-
-        struct Node* n = (struct Node*) malloc(sizeof(struct Node));
-
-        n->packet = p;
-        n->next = NULL;
-
-        printf("*** enqueue 0\n");
-        enqueue(q, n);
-        printQueue(q);
-
-
-    }
-  
-    for (int i = 0; i < 3; i++) {
-        struct Node* recNode = NULL;
-
-        printf("*** dequeue %d\n", i);
-        recNode = dequeue(q);
-        printNode(recNode);
-        printf("Rest of queue: \n");
-        freeNode(recNode);
-        printQueue(q);
-    }
-
-    
-    freeQueue(q);
-}
-
 int main(int argc, char *argv[]) {
 
-    nConsumers = 0;            // Number of consumer threads to be created.
+    nConsumers = 0;                // Number of consumer threads to be created.
     char* path = NULL;             // Path of input file
     int mode = 0;                  // App mode that specifies use of bounded buffer or log output
     int queueBufferSize = -1;      // initialized with an invalid value
@@ -133,10 +92,13 @@ int main(int argc, char *argv[]) {
     pthread_t consumerThreads[nConsumers];
 
     pthread_create(&producerThread, NULL, producer, fp);
-
+    int* index = (int*) malloc(sizeof(int));
     for (int i = 0; i < nConsumers; i++) {
-        pthread_create(&consumerThreads[i], NULL, consumer, NULL);
+        *index = i;
+        pthread_create(&consumerThreads[i], NULL, consumer, index);
+        index = (int*) malloc(sizeof(int));
     }
+    index = NULL;
 
     // wait for all threads to complete execution
     printf("launching producer\n");

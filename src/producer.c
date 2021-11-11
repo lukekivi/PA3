@@ -10,9 +10,7 @@ sem_t staged;
  */
 void *producer(void *arg){
 
-    printf("producer.\n");
-
-    //TODO: open the file and read its content line by line
+    // open the file and read its content line by line
 
     FILE * fd_in = (FILE*)arg; //  file we are reading from; will be passed in
     ssize_t nread;
@@ -20,7 +18,7 @@ void *producer(void *arg){
     size_t len = chunkSize;
     int lineCount = 0;
 
-    // read until EOF
+    // // read until EOF
     while (nread = getLineFromFile(fd_in, buffer, len) != -1) {
       lineCount++;
       //Send data to the shared queue

@@ -110,7 +110,7 @@ struct Queue* initQueue();
 void enqueue(struct Queue* q, struct Node* node);
 
 /**
- * Pop the head node off of the queue
+ * @details Pop the head node off of the queue
  * @param q    the queue
  * @returns    popped node or NULL if queue is empty
  */
