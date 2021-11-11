@@ -68,6 +68,7 @@ void bookeepingCode();
  */
 struct Packet {
     char* line;
+    int lineCount;
 };
 
 /**
@@ -103,7 +104,7 @@ struct Queue* initQueue();
  * Add node to a queue. If the queue is empty to start, tail should be a node with it's fields set to NULL.
  * @param q    the queue
  * @param node node to be added. node->next should be NULL
- */ 
+ */
 void enqueue(struct Queue* q, struct Node* node);
 
 /**
@@ -141,7 +142,7 @@ int parseModeArg(char* str);
  */
 int isDigits(char* str);
 
-/* Debugging functions */ 
+/* Debugging functions */
 
 /**
  * Print the packets in all queues
