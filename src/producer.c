@@ -55,8 +55,6 @@ void *producer(void *arg){
       enqueue(q, n);
     }
 
-    printQueue(q);
-
     // cleanup and exit
     return NULL;
 }
