@@ -10,7 +10,7 @@ sem_t staged;
  */
 void *producer(void *arg){
 
-    printf("In the producer.\n");
+    printf("producer.\n");
 
     //TODO: open the file and read its content line by line
 
@@ -52,6 +52,13 @@ void *producer(void *arg){
     printf("Printing queue:\n");
     // Print queue for testing.
     printQueue(q);
+
+    for (int i = 0; i < nConsumers; i++) {
+      struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
+      struct Node* n = (struct Node*) malloc (sizeof(struct Node));
+
+      p->lineCount = lineCount;
+    }
 
     // cleanup and exit
     return NULL;
