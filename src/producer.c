@@ -3,6 +3,7 @@
 struct Queue* q;
 sem_t mutex;
 sem_t staged;
+int nConsumers;
 /**
  *
  * Producer thread will read from the file and write data to
@@ -18,9 +19,14 @@ void *producer(void *arg){
     size_t len = chunkSize;
     int lineCount = 0;
 
+    // Log
+    char * log = "output/log.txt";
+    writeLineToFile(log, "producer\n");
+
     // // read until EOF
     while (nread = getLineFromFile(fd_in, buffer, len) != -1) {
       lineCount++;
+
       //Send data to the shared queue
       struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
       p->line = buffer;
@@ -30,18 +36,28 @@ void *producer(void *arg){
       n->next = NULL;
       n->packet = p;
 
+      // Log
+      char* producerLine = (char*)malloc(30*sizeof(char));
+      sprintf(producerLine, "producer: line %d\n", lineCount);
+      writeLineToFile(log, producerLine);
+      free(producerLine);
+
       sem_wait(&mutex);
       enqueue(q, n);
       sem_post(&mutex);
       sem_post(&staged);
- 
+
+
       buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     }
 
+
+    // char * producerEOF = "producer: line -1\n";
     for (int i = 0; i < nConsumers; i++) {
+      // writeLineToFile(log, producerEOF);
       struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
       struct Node* n = (struct Node*) malloc (sizeof(struct Node));
-    
+
       p->lineCount = -1;
       p->line = NULL;
       n->packet = p;

@@ -7,25 +7,39 @@ int nConsumers;
  * The path name should be output/result.txt
  */
 void writeBalanceToFiles(void) {
-
     // write balance for each customer
+
+    // Log
     char * fileName = "output/result.txt"; // path to result file
+    char* pattern = (char*)malloc(30*sizeof(char));
+
     double totalChange = 0;
 
     for (int i = 0; i < acctsNum; i++) {
-      char pattern[30]; // using 30 temporarily because I don't know if there is a maximum length.
-      sprintf(pattern, "%d %lf\n", i, balance[i]); // add account number and balance.
+
+      sprintf(pattern, "%d\t%lf\n", i, balance[i]); // add account number and balance.
       totalChange += balance[i]; // add to total change for bottom of the file.
 
       writeLineToFile(fileName, pattern);
+      char* pattern = (char*)malloc(30*sizeof(char));
     }
+
     // write total balance change
-    char totalChangeLine[30]; // again 30 can be changed if there is a reasonable max.
-    sprintf(totalChangeLine, "All: %lf\n", totalChange); // use totalChange to write the last line of the file.
-    writeLineToFile(fileName, totalChangeLine);
+    sprintf(pattern, "All:\t%lf\n", totalChange); // use totalChange to write the last line of the file.
+    writeLineToFile(fileName, pattern);
+
+    pattern = NULL;
+
 }
 
 int main(int argc, char *argv[]) {
+
+    // Time Testing
+
+    // double cpu_time;
+    // clock_t begin, end;
+    //
+    // begin = clock();
 
     nConsumers = 0;                // Number of consumer threads to be created.
     char* path = NULL;             // Path of input file
@@ -128,6 +142,12 @@ int main(int argc, char *argv[]) {
     writeBalanceToFiles();
 
     fclose(fp);
+
+    // Time testing
+
+    // end = clock();
+    // cpu_time = (double)(end - begin) / CLOCKS_PER_SEC;
+    // printf("TOTAL TIME: %lf\n", cpu_time);
 
     return 0;
 }
