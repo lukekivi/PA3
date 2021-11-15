@@ -7,6 +7,7 @@ int nConsumers;
  * The path name should be output/result.txt
  */
 void writeBalanceToFiles(void) {
+
     // write balance for each customer
     char * fileName = "output/result.txt"; // path to result file
     double totalChange = 0;
@@ -22,7 +23,6 @@ void writeBalanceToFiles(void) {
     char totalChangeLine[30]; // again 30 can be changed if there is a reasonable max.
     sprintf(totalChangeLine, "All: %lf\n", totalChange); // use totalChange to write the last line of the file.
     writeLineToFile(fileName, totalChangeLine);
-
 }
 
 int main(int argc, char *argv[]) {
