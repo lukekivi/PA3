@@ -47,10 +47,11 @@ void *producer(void *arg){
       n->packet = p;
       n->next = NULL;
 
-      sem_post(&mutex);
-      sem_post(&staged);
+
       sem_wait(&mutex);
       enqueue(q, n);
+      sem_post(&mutex);
+      sem_post(&staged);
     }
 
     // cleanup and exit

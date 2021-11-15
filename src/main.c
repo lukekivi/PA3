@@ -6,8 +6,21 @@
  */
 void writeBalanceToFiles(void) {
     // TODO: write balance for each customer 
-    
+    char * fileName = "output/result.text"; // path to result file
+    double totalChange = 0;
+
+    for (int i  = 0; i < acctsNum; i++) {
+        char pattern[30];                            // using 30 temporarily because I don't know if there is a maximum length.
+        sprintf(pattern, "%d\t%lf\n", i, balance[i]); // add account number and balance.
+        totalChange += balance[i];                   // add to total change for bottom of the file.
+
+        writeLineToFile(fileName, pattern);
+    }
+
     // TODO: write total balance change
+    char totalChangeLine[30];                            // again 30 can be changed if there is a reasonable max.
+    sprintf(totalChangeLine, "All:\t%lf\n", totalChange); // use totalChange to write the last line of the file.
+    writeLineToFile(fileName, totalChangeLine);
 }
 
 int main(int argc, char *argv[]) {
