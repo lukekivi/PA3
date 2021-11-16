@@ -1,6 +1,7 @@
 #include "consumer.h"
 #include <ctype.h>
-
+char *logDir;
+int mode;
 /**
  * parse lines from the queue, calculate balance change
  * and update to global array
@@ -32,13 +33,15 @@ void parse(char *line){
 void *consumer(void *arg){
 
     int* consumerId = (int*)arg;
+    int ACCOUNT_INFO_MAX_LENGTH = 32;
 
     // Log
-    char * consumerLog = (char*)malloc(30*sizeof(char));
-    char * log = "output/log.txt";
-    sprintf(consumerLog, "consumer %d\n", *consumerId);
-    writeLineToFile(log, consumerLog);
-    free(consumerLog);
+    if (mode == 1 || mode == 3) {
+      char * consumerLog = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
+      sprintf(consumerLog, "consumer %d\n", *consumerId);
+      writeLineToFile(logDir, consumerLog);
+      free(consumerLog);
+    }
 
 
     // keep reading from queue and process the data
@@ -49,22 +52,19 @@ void *consumer(void *arg){
 
         // Log consumer id: line number
 
-        char* pattern = (char*)malloc(30*sizeof(char));
-        sprintf(pattern, "consumer %d: line %d\n", *consumerId, n->packet->lineCount);
-        writeLineToFile(log, pattern);
-        free(pattern);
+        if (mode == 1 || mode == 3) {
+          char* pattern = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
+          sprintf(pattern, "consumer %d: line %d\n", *consumerId, n->packet->lineCount);
+          writeLineToFile(logDir, pattern);
+          free(pattern);
+        }
 
         sem_post(&mutex);
         if (n->packet->lineCount == -1) {
             return NULL;
         }
 
-        //printf("Line: %s\n", n->packet->line);
-        sem_wait(&mutex); // can remove this later. this is just for testing,
-                          // because it was annoying having all the consumers
-                          // printing from parse at once. can be removed.
         parse(n->packet->line);
-        sem_post(&mutex); // can be removed later.
 
 
         free(n);

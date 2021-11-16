@@ -4,6 +4,8 @@ struct Queue* q;
 sem_t mutex;
 sem_t staged;
 int nConsumers;
+char* logDir;
+int mode;
 /**
  *
  * Producer thread will read from the file and write data to
@@ -18,10 +20,13 @@ void *producer(void *arg){
     char* buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     size_t len = chunkSize;
     int lineCount = 0;
+    int ACCOUNT_INFO_MAX_LENGTH = 32;
 
     // Log
-    char * log = "output/log.txt";
-    writeLineToFile(log, "producer\n");
+    if (mode == 1 || mode == 3) {
+      writeLineToFile(logDir, "producer\n");
+    }
+
 
     // // read until EOF
     while (nread = getLineFromFile(fd_in, buffer, len) != -1) {
@@ -37,10 +42,15 @@ void *producer(void *arg){
       n->packet = p;
 
       // Log
-      char* producerLine = (char*)malloc(30*sizeof(char));
-      sprintf(producerLine, "producer: line %d\n", lineCount);
-      writeLineToFile(log, producerLine);
-      free(producerLine);
+
+      // THIS IS THE ONE CAUSING PROBLEMS.
+      //if (mode == 1 || mode == 3) {
+        char* producerLine = (char*)malloc(sizeof(char)*ACCOUNT_INFO_MAX_LENGTH);
+        sprintf(producerLine, "producer: line %d\n", n->packet->lineCount);
+        writeLineToFile(logDir, producerLine);
+        free(producerLine);
+      //}
+
 
       sem_wait(&mutex);
       enqueue(q, n);
@@ -51,10 +61,13 @@ void *producer(void *arg){
       buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     }
 
+    char * producerEOF = "producer: line -1\n";
 
-    // char * producerEOF = "producer: line -1\n";
     for (int i = 0; i < nConsumers; i++) {
-      // writeLineToFile(log, producerEOF);
+
+      if (mode == 1 || mode == 3) {
+        writeLineToFile(logDir, producerEOF);
+      }
       struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
       struct Node* n = (struct Node*) malloc (sizeof(struct Node));
 
