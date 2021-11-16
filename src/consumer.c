@@ -7,12 +7,11 @@
  */
 void parse(char *line){
 
-    // TODO: get customer id
+    // get customer id
     int id;
     sscanf(line, "%d", &id);
-    printf("ID: %d\n", id);
 
-    // TODO: sum up transactions
+    // sum up transactions
     double totalChange = 0;
     double transaction; // placeholder for doubles we are reading in
     char *token;
@@ -26,9 +25,8 @@ void parse(char *line){
         token = strtok(NULL, pattern);
     }
     totalChange -= id;
-    printf("Total change: %lf\n", totalChange); // Testing
 
-    // TODO: update the global array
+    // update the global array
     balance[id] += totalChange;
 }
 
@@ -47,11 +45,7 @@ void *consumer(void *arg){
             return NULL;
         }
 
-        sem_wait(&mutex); // can remove this later. this is just for testing,
-                          // because it was annoying having all the consumers
-                          // printing from parse at once. can be removed.
         parse(n->packet->line);
-        sem_post(&mutex); // can be removed later.
 
         free(n);
     }

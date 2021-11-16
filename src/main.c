@@ -1,4 +1,5 @@
 #include "header.h"
+#define ACCOUNT_INFO_MAX_LENGTH 32
 int nConsumers;
 
 
@@ -7,22 +8,40 @@ int nConsumers;
  * The path name should be output/result.txt
  */
 void writeBalanceToFiles(void) {
+    int fd = open(finalDir, O_CREAT | O_WRONLY, 0777);
+    if (fd < 0){
+        printf("ERROR: Cannot open the file %s\n", finalDir);
+        fflush(stdout);
+        exit(EXIT_FAILURE);
+    }
 
     // write balance for each customer
-    char * fileName = "output/result.txt"; // path to result file
     double totalChange = 0;
 
     for (int i = 0; i < acctsNum; i++) {
-      char pattern[30]; // using 30 temporarily because I don't know if there is a maximum length.
-      sprintf(pattern, "%d %lf\n", i, balance[i]); // add account number and balance.
-      totalChange += balance[i]; // add to total change for bottom of the file.
+      char line[ACCOUNT_INFO_MAX_LENGTH]; 
+      sprintf(line, "%d\t%lf\n", i, balance[i]);      // add account number and balance.
+      totalChange += balance[i];                        // add to total change for bottom of the file.
 
-      writeLineToFile(fileName, pattern);
+        int ret = write(fd, line, strlen(line));
+        if(ret < 0){
+            printf("ERROR: Cannot write to file %s\n", finalDir);
+            fflush(stdout);
+            exit(EXIT_FAILURE);
+        }    
     }
+
     // write total balance change
-    char totalChangeLine[30]; // again 30 can be changed if there is a reasonable max.
-    sprintf(totalChangeLine, "All: %lf\n", totalChange); // use totalChange to write the last line of the file.
-    writeLineToFile(fileName, totalChangeLine);
+    char totalChangeLine[ACCOUNT_INFO_MAX_LENGTH];
+    sprintf(totalChangeLine, "All: \t%lf\n", totalChange); // use totalChange to write the last line of the file.
+    int ret = write(fd, totalChangeLine, strlen(totalChangeLine));
+    if(ret < 0){
+        printf("ERROR: Cannot write to file %s\n", finalDir);
+        fflush(stdout);
+        exit(EXIT_FAILURE);
+    }
+
+    close(fd);
 }
 
 int main(int argc, char *argv[]) {
