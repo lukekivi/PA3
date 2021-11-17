@@ -27,7 +27,6 @@ void *producer(void *arg){
       writeLineToFile(logDir, "producer\n");
     }
 
-
     // // read until EOF
     while (nread = getLineFromFile(fd_in, buffer, len) != -1) {
       lineCount++;
@@ -44,12 +43,13 @@ void *producer(void *arg){
       // Log
 
       // THIS IS THE ONE CAUSING PROBLEMS.
-      //if (mode == 1 || mode == 3) {
+
+      if (mode == 1 || mode == 3) {
         char* producerLine = (char*)malloc(sizeof(char)*ACCOUNT_INFO_MAX_LENGTH);
-        sprintf(producerLine, "producer: line %d\n", n->packet->lineCount);
+        sprintf(producerLine, "producer: line %d\n", lineCount);
         writeLineToFile(logDir, producerLine);
         free(producerLine);
-      //}
+      }
 
 
       sem_wait(&mutex);
@@ -62,9 +62,7 @@ void *producer(void *arg){
     }
 
     char * producerEOF = "producer: line -1\n";
-
     for (int i = 0; i < nConsumers; i++) {
-
       if (mode == 1 || mode == 3) {
         writeLineToFile(logDir, producerEOF);
       }

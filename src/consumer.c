@@ -43,13 +43,12 @@ void *consumer(void *arg){
       free(consumerLog);
     }
 
-
     // keep reading from queue and process the data
     while(1){
         sem_wait(&staged);
         sem_wait(&mutex);
         struct Node* n = dequeue(q);
-
+        sem_post(&mutex);
         // Log consumer id: line number
 
         if (mode == 1 || mode == 3) {
@@ -59,7 +58,7 @@ void *consumer(void *arg){
           free(pattern);
         }
 
-        sem_post(&mutex);
+
         if (n->packet->lineCount == -1) {
             return NULL;
         }

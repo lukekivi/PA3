@@ -1,35 +1,46 @@
 #include "header.h"
 int nConsumers;
+char* finalDir;
+int mode;
 
 
-/**
- * Write final balance to a single file.
- * The path name should be output/result.txt
- */
+
 void writeBalanceToFiles(void) {
-    // write balance for each customer
+  int fd = open(finalDir, O_CREAT | O_WRONLY, 0777);
+  int ACCOUNT_INFO_MAX_LENGTH = 32;
 
-    // Log
-    char * fileName = "output/result.txt"; // path to result file
-    char* pattern = (char*)malloc(30*sizeof(char));
+  if (fd < 0) {
+    printf("ERROR: Cannot open the file %s\n", finalDir);
+    fflush(stdout);
+    exit(EXIT_FAILURE);
+  }
 
-    double totalChange = 0;
+  double totalChange = 0;
 
-    for (int i = 0; i < acctsNum; i++) {
+  for (int i = 0; i < acctsNum; i++) {
+    char line[ACCOUNT_INFO_MAX_LENGTH];
+    sprintf(line, "%d\t%lf\n", i, balance[i]);
 
-      sprintf(pattern, "%d\t%lf\n", i, balance[i]); // add account number and balance.
-      totalChange += balance[i]; // add to total change for bottom of the file.
+    totalChange += balance[i];
 
-      writeLineToFile(fileName, pattern);
-      char* pattern = (char*)malloc(30*sizeof(char));
+    int ret = write(fd, line, strlen(line));
+    if (ret< 0) {
+      printf("ERROR: Cannot write to file %s\n", finalDir);
+      fflush(stdout);
+      exit(EXIT_FAILURE);
     }
+  }
 
-    // write total balance change
-    sprintf(pattern, "All:\t%lf\n", totalChange); // use totalChange to write the last line of the file.
-    writeLineToFile(fileName, pattern);
+  char totalChangeLine[ACCOUNT_INFO_MAX_LENGTH];
+  sprintf(totalChangeLine, "All: \t%lf\n", totalChange);
+  int ret = write(fd, totalChangeLine, strlen(totalChangeLine));
+  if (ret < 0) {
+    printf("ERROR: Cannot write to file %s\n", finalDir);
+    fflush(stdout);
+    exit(EXIT_FAILURE);
+  }
 
-    pattern = NULL;
-
+  close(fd);
 }
 
 int main(int argc, char *argv[]) {
@@ -43,7 +54,7 @@ int main(int argc, char *argv[]) {
 
     nConsumers = 0;                // Number of consumer threads to be created.
     char* path = NULL;             // Path of input file
-    int mode = 0;                  // App mode that specifies use of bounded buffer or log output
+    mode = 0;                  // App mode that specifies use of bounded buffer or log output
     int queueBufferSize = -1;      // initialized with an invalid value
 
     // Argument check
@@ -67,10 +78,12 @@ int main(int argc, char *argv[]) {
         if (argc > 3) {
             if (argv[3][0] == '-') {
                 // check the mode
+
                 if ((mode = parseModeArg(argv[3])) == -1) {
                     fprintf(stderr, "ERROR: %s is an invalid argument.\n", argv[3]);
                     exit(EXIT_FAILURE);
                 }
+
 
                 // if bounded buffer was requested get the buffer size
                 if ((mode == 2 || mode == 3)) {
@@ -95,9 +108,7 @@ int main(int argc, char *argv[]) {
      * - 2: use a bounded buffer.
      * - 3: generate log output and use a bounded buffer.
      */
-
     bookeepingCode();
-
     // Initialize global variables, like shared queue
 
     FILE* fp = fopen(path, "r");
@@ -128,7 +139,6 @@ int main(int argc, char *argv[]) {
         index = (int*) malloc(sizeof(int));
     }
     index = NULL;
-
     // wait for all threads to complete execution
     //printf("launching producer\n");
     pthread_join(producerThread, NULL);
@@ -148,6 +158,7 @@ int main(int argc, char *argv[]) {
     // end = clock();
     // cpu_time = (double)(end - begin) / CLOCKS_PER_SEC;
     // printf("TOTAL TIME: %lf\n", cpu_time);
+
 
     return 0;
 }
