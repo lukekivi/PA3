@@ -7,26 +7,31 @@ int mode;
  * and update to global array
  */
 
-
 void parse(char *line){
-  int id;
-  sscanf(line, "%d", &id);
+    
+    // get customer id
+    int id;
+    sscanf(line, "%d", &id);
 
-  double totalChange = 0;
-  double transaction;
-  char *token;
-  char *pattern = ",";
+    // sum up transactions
+    double totalChange = 0;
+    double transaction; // placeholder for doubles we are reading in
+    char *token, *saveptr;
+    char *pattern = ",";
 
-  token = strtok(line, pattern);
 
-  while (token != NULL) {
-    sscanf(token, "%lf", &transaction);
-    totalChange += transaction;
-    token = strtok(NULL, pattern);
-  }
-  totalChange -= id;
+    sem_wait(&mutexBalances[id]);
+    token = strtok_r(line, pattern, &saveptr);
+    
+    while (token != NULL) {
+        sscanf(token, "%lf", &transaction);
+        balance[id] += transaction;    
+        token = strtok_r(NULL, pattern, &saveptr);
+    }
 
-  balance[id] += totalChange;
+    balance[id] -= id;
+    sem_post(&mutexBalances[id]);
+
 }
 
 // consumer function
@@ -46,9 +51,9 @@ void *consumer(void *arg){
     // keep reading from queue and process the data
     while(1){
         sem_wait(&staged);
-        sem_wait(&mutex);
+        sem_wait(&mutexQueue);
         struct Node* n = dequeue(q);
-        sem_post(&mutex);
+        sem_post(&mutexQueue);
         // Log consumer id: line number
 
         if (mode == 1 || mode == 3) {
@@ -64,7 +69,6 @@ void *consumer(void *arg){
         }
 
         parse(n->packet->line);
-
 
         free(n);
     }

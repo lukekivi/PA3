@@ -7,13 +7,15 @@ double balance[acctsNum];
 /* shared queue of nodes containing data packets */
 struct Queue* q;
 
-/* mode of the program - set by flags passed as arguments to main */
+/* mode of the program - specified by command line arguments  */
 int mode;
 
+/* number of consumers - specified by command line arguments */
 int nConsumers;
 
 /* sempahores */
-sem_t mutex;             
+sem_t mutexBalances[acctsNum];
+sem_t mutexQueue;             
 sem_t staged;            
 sem_t queueNodes;        
 

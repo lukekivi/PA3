@@ -1,46 +1,44 @@
 #include "header.h"
-int nConsumers;
-char* finalDir;
-int mode;
 
+#define ACCOUNT_INFO_MAX_LENGTH 32
 
 
 void writeBalanceToFiles(void) {
-  int fd = open(finalDir, O_CREAT | O_WRONLY, 0777);
-  int ACCOUNT_INFO_MAX_LENGTH = 32;
-
-  if (fd < 0) {
-    printf("ERROR: Cannot open the file %s\n", finalDir);
-    fflush(stdout);
-    exit(EXIT_FAILURE);
-  }
-
-  double totalChange = 0;
-
-  for (int i = 0; i < acctsNum; i++) {
-    char line[ACCOUNT_INFO_MAX_LENGTH];
-    sprintf(line, "%d\t%lf\n", i, balance[i]);
-
-    totalChange += balance[i];
-
-    int ret = write(fd, line, strlen(line));
-    if (ret< 0) {
-      printf("ERROR: Cannot write to file %s\n", finalDir);
-      fflush(stdout);
-      exit(EXIT_FAILURE);
+  
+    int fd = open(finalDir, O_CREAT | O_WRONLY, 0777);
+    if (fd < 0){
+        printf("ERROR: Cannot open the file %s\n", finalDir);
+        fflush(stdout);
+        exit(EXIT_FAILURE);
     }
-  }
 
-  char totalChangeLine[ACCOUNT_INFO_MAX_LENGTH];
-  sprintf(totalChangeLine, "All: \t%lf\n", totalChange);
-  int ret = write(fd, totalChangeLine, strlen(totalChangeLine));
-  if (ret < 0) {
-    printf("ERROR: Cannot write to file %s\n", finalDir);
-    fflush(stdout);
-    exit(EXIT_FAILURE);
-  }
+    // write balance for each customer
+    double totalChange = 0;
 
-  close(fd);
+    for (int i = 0; i < acctsNum; i++) {
+      char line[ACCOUNT_INFO_MAX_LENGTH]; 
+      sprintf(line, "%d\t%lf\n", i, balance[i]);      // add account number and balance.
+      totalChange += balance[i];                        // add to total change for bottom of the file.
+
+        int ret = write(fd, line, strlen(line));
+        if(ret < 0){
+            printf("ERROR: Cannot write to file %s\n", finalDir);
+            fflush(stdout);
+            exit(EXIT_FAILURE);
+        }    
+    }
+
+    // write total balance change
+    char totalChangeLine[ACCOUNT_INFO_MAX_LENGTH];
+    sprintf(totalChangeLine, "All: \t%lf\n", totalChange); // use totalChange to write the last line of the file.
+    int ret = write(fd, totalChangeLine, strlen(totalChangeLine));
+    if(ret < 0){
+        printf("ERROR: Cannot write to file %s\n", finalDir);
+        fflush(stdout);
+        exit(EXIT_FAILURE);
+    }
+
+    close(fd);
 }
 
 int main(int argc, char *argv[]) {
@@ -120,7 +118,10 @@ int main(int argc, char *argv[]) {
 
     q = initQueue();
 
-    sem_init(&mutex, 0, 1);
+    for (int i = 0; i < acctsNum; i++) {
+        sem_init(&mutexBalances[i], 0, 1);
+    }
+    sem_init(&mutexQueue, 0, 1);
     sem_init(&staged, 0, 0);
 
     if (mode == 2 || mode == 3) {

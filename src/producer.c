@@ -1,11 +1,5 @@
 #include "producer.h"
 
-struct Queue* q;
-sem_t mutex;
-sem_t staged;
-int nConsumers;
-char* logDir;
-int mode;
 /**
  *
  * Producer thread will read from the file and write data to
@@ -40,10 +34,6 @@ void *producer(void *arg){
       n->next = NULL;
       n->packet = p;
 
-      // Log
-
-      // THIS IS THE ONE CAUSING PROBLEMS.
-
       if (mode == 1 || mode == 3) {
         char* producerLine = (char*)malloc(sizeof(char)*ACCOUNT_INFO_MAX_LENGTH);
         sprintf(producerLine, "producer: line %d\n", lineCount);
@@ -51,10 +41,9 @@ void *producer(void *arg){
         free(producerLine);
       }
 
-
-      sem_wait(&mutex);
+      sem_wait(&mutexQueue);
       enqueue(q, n);
-      sem_post(&mutex);
+      sem_post(&mutexQueue);
       sem_post(&staged);
 
 
@@ -75,9 +64,9 @@ void *producer(void *arg){
       n->next = NULL;
 
 
-      sem_wait(&mutex);
+      sem_wait(&mutexQueue);
       enqueue(q, n);
-      sem_post(&mutex);
+      sem_post(&mutexQueue);
       sem_post(&staged);
     }
 
