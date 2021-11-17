@@ -1,12 +1,10 @@
 #include "header.h"
+
 #define ACCOUNT_INFO_MAX_LENGTH 32
 
 
-/**
- * Write final balance to a single file.
- * The path name should be output/result.txt
- */
 void writeBalanceToFiles(void) {
+  
     int fd = open(finalDir, O_CREAT | O_WRONLY, 0777);
     if (fd < 0){
         printf("ERROR: Cannot open the file %s\n", finalDir);
@@ -45,9 +43,16 @@ void writeBalanceToFiles(void) {
 
 int main(int argc, char *argv[]) {
 
+    // Time Testing
+
+    // double cpu_time;
+    // clock_t begin, end;
+    //
+    // begin = clock();
+
     nConsumers = 0;                // Number of consumer threads to be created.
     char* path = NULL;             // Path of input file
-    int mode = 0;                  // App mode that specifies use of bounded buffer or log output
+    mode = 0;                  // App mode that specifies use of bounded buffer or log output
     int queueBufferSize = -1;      // initialized with an invalid value
 
     // Argument check
@@ -71,10 +76,12 @@ int main(int argc, char *argv[]) {
         if (argc > 3) {
             if (argv[3][0] == '-') {
                 // check the mode
+
                 if ((mode = parseModeArg(argv[3])) == -1) {
                     fprintf(stderr, "ERROR: %s is an invalid argument.\n", argv[3]);
                     exit(EXIT_FAILURE);
                 }
+
 
                 // if bounded buffer was requested get the buffer size
                 if ((mode == 2 || mode == 3)) {
@@ -99,9 +106,7 @@ int main(int argc, char *argv[]) {
      * - 2: use a bounded buffer.
      * - 3: generate log output and use a bounded buffer.
      */
-
     bookeepingCode();
-
     // Initialize global variables, like shared queue
 
     FILE* fp = fopen(path, "r");
@@ -135,7 +140,6 @@ int main(int argc, char *argv[]) {
         index = (int*) malloc(sizeof(int));
     }
     index = NULL;
-
     // wait for all threads to complete execution
     //printf("launching producer\n");
     pthread_join(producerThread, NULL);
@@ -149,6 +153,13 @@ int main(int argc, char *argv[]) {
     writeBalanceToFiles();
 
     fclose(fp);
+
+    // Time testing
+
+    // end = clock();
+    // cpu_time = (double)(end - begin) / CLOCKS_PER_SEC;
+    // printf("TOTAL TIME: %lf\n", cpu_time);
+
 
     return 0;
 }

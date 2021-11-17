@@ -14,10 +14,17 @@ void *producer(void *arg){
     char* buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     size_t len = chunkSize;
     int lineCount = 0;
+    int ACCOUNT_INFO_MAX_LENGTH = 32;
+
+    // Log
+    if (mode == 1 || mode == 3) {
+      writeLineToFile(logDir, "producer\n");
+    }
 
     // // read until EOF
     while (nread = getLineFromFile(fd_in, buffer, len) != -1) {
       lineCount++;
+
       //Send data to the shared queue
       struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
       p->line = buffer;
@@ -27,18 +34,30 @@ void *producer(void *arg){
       n->next = NULL;
       n->packet = p;
 
+      if (mode == 1 || mode == 3) {
+        char* producerLine = (char*)malloc(sizeof(char)*ACCOUNT_INFO_MAX_LENGTH);
+        sprintf(producerLine, "producer: line %d\n", lineCount);
+        writeLineToFile(logDir, producerLine);
+        free(producerLine);
+      }
+
       sem_wait(&mutexQueue);
       enqueue(q, n);
       sem_post(&mutexQueue);
       sem_post(&staged);
- 
+
+
       buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     }
 
+    char * producerEOF = "producer: line -1\n";
     for (int i = 0; i < nConsumers; i++) {
+      if (mode == 1 || mode == 3) {
+        writeLineToFile(logDir, producerEOF);
+      }
       struct Packet* p = (struct Packet*) malloc(sizeof(struct Packet));
       struct Node* n = (struct Node*) malloc (sizeof(struct Node));
-    
+
       p->lineCount = -1;
       p->line = NULL;
       n->packet = p;
