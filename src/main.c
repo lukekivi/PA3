@@ -1,6 +1,5 @@
 #include "header.h"
 #define ACCOUNT_INFO_MAX_LENGTH 32
-int nConsumers;
 
 
 /**
@@ -114,7 +113,10 @@ int main(int argc, char *argv[]) {
 
     q = initQueue();
 
-    sem_init(&mutex, 0, 1);
+    for (int i = 0; i < acctsNum; i++) {
+        sem_init(&mutexBalances[i], 0, 1);
+    }
+    sem_init(&mutexQueue, 0, 1);
     sem_init(&staged, 0, 0);
 
     if (mode == 2 || mode == 3) {

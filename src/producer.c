@@ -1,8 +1,5 @@
 #include "producer.h"
 
-struct Queue* q;
-sem_t mutex;
-sem_t staged;
 /**
  *
  * Producer thread will read from the file and write data to
@@ -30,9 +27,9 @@ void *producer(void *arg){
       n->next = NULL;
       n->packet = p;
 
-      sem_wait(&mutex);
+      sem_wait(&mutexQueue);
       enqueue(q, n);
-      sem_post(&mutex);
+      sem_post(&mutexQueue);
       sem_post(&staged);
  
       buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
@@ -48,9 +45,9 @@ void *producer(void *arg){
       n->next = NULL;
 
 
-      sem_wait(&mutex);
+      sem_wait(&mutexQueue);
       enqueue(q, n);
-      sem_post(&mutex);
+      sem_post(&mutexQueue);
       sem_post(&staged);
     }
 

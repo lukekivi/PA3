@@ -6,7 +6,7 @@
  * and update to global array
  */
 void parse(char *line){
-
+    
     // get customer id
     int id;
     sscanf(line, "%d", &id);
@@ -14,20 +14,22 @@ void parse(char *line){
     // sum up transactions
     double totalChange = 0;
     double transaction; // placeholder for doubles we are reading in
-    char *token;
+    char *token, *saveptr;
     char *pattern = ",";
 
-    token = strtok(line, pattern);
 
-    while (token != NULL){
+    sem_wait(&mutexBalances[id]);
+    token = strtok_r(line, pattern, &saveptr);
+    
+    while (token != NULL) {
         sscanf(token, "%lf", &transaction);
-        totalChange += transaction;
-        token = strtok(NULL, pattern);
+        balance[id] += transaction;    
+        token = strtok_r(NULL, pattern, &saveptr);
     }
-    totalChange -= id;
 
-    // update the global array
-    balance[id] += totalChange;
+    balance[id] -= id;
+    sem_post(&mutexBalances[id]);
+
 }
 
 // consumer function
@@ -37,9 +39,9 @@ void *consumer(void *arg){
     //  feel free to change
     while (1){
         sem_wait(&staged);
-        sem_wait(&mutex);
+        sem_wait(&mutexQueue);
         struct Node *n = dequeue(q);
-        sem_post(&mutex);
+        sem_post(&mutexQueue);
 
         if (n->packet->lineCount == -1){
             return NULL;

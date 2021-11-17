@@ -14,7 +14,8 @@ int mode;
 int nConsumers;
 
 /* sempahores */
-sem_t mutex;             
+sem_t mutexBalances[acctsNum];
+sem_t mutexQueue;             
 sem_t staged;            
 sem_t queueNodes;        
 

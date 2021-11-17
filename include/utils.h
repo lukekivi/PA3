@@ -30,7 +30,8 @@ extern int mode;
 extern int nConsumers;
 
 /* sempahores */
-extern sem_t mutex;             // Queue is being modified
+extern sem_t mutexBalances[acctsNum];        // Balance is being modified    
+extern sem_t mutexQueue;        // Queue is being modified
 extern sem_t staged;            // A producer signals when a package was staged in the queue
 extern sem_t queueNodes;        // Used when buffer size is specified - mode 2 or 3
 
