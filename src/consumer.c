@@ -1,7 +1,7 @@
 #include "consumer.h"
 #include <ctype.h>
 char *logDir;
-int mode;
+
 /**
  * parse lines from the queue, calculate balance change
  * and update to global array

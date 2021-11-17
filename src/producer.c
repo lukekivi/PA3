@@ -1,4 +1,5 @@
 #include "producer.h"
+char *logDir;
 
 /**
  *
@@ -8,7 +9,6 @@
 void *producer(void *arg){
 
     // open the file and read its content line by line
-
     FILE * fd_in = (FILE*)arg; //  file we are reading from; will be passed in
     ssize_t nread;
     char* buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
