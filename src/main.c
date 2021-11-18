@@ -2,7 +2,6 @@
 
 #define ACCOUNT_INFO_MAX_LENGTH 32
 
-
 void writeBalanceToFiles(void) {
   
     int fd = open(finalDir, O_CREAT | O_WRONLY, 0777);
@@ -53,7 +52,7 @@ int main(int argc, char *argv[]) {
     nConsumers = 0;                // Number of consumer threads to be created.
     char* path = NULL;             // Path of input file
     mode = 0;                  // App mode that specifies use of bounded buffer or log output
-    int queueBufferSize = -1;      // initialized with an invalid value
+    queueBufferSize = -1;           // initialized with an invalid value
 
     // Argument check
     if (argc < 3) {

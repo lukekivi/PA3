@@ -28,6 +28,7 @@ extern struct Queue* q;
 extern int mode;
 
 extern int nConsumers;
+extern int queueBufferSize;
 
 /* sempahores */
 extern sem_t mutexBalances[acctsNum];        // Balance is being modified    
@@ -97,7 +98,7 @@ struct Queue {
 };
 
 /**
- * Initialze a queue
+ * Initialize a queue
  * @returns a pointer to an initialized queue
  */
 struct Queue* initQueue();

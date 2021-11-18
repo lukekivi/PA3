@@ -13,11 +13,14 @@ int mode;
 /* number of consumers - specified by command line arguments */
 int nConsumers;
 
+// shared queue size
+int queueBufferSize;
+
 /* sempahores */
 sem_t mutexBalances[acctsNum];
 sem_t mutexQueue;             
 sem_t staged;            
-sem_t queueNodes;        
+sem_t queueNodes;      
 
 // pthread.h included in header.h
 
@@ -35,6 +38,7 @@ void writeLineToFile(char *filepath, char *line) {
         fflush(stdout);
         exit(EXIT_FAILURE);
     }
+    close(fd);
 }
 
 FILE * getFilePointer(char *inputFileName) {
