@@ -35,6 +35,7 @@ void writeLineToFile(char *filepath, char *line) {
         fflush(stdout);
         exit(EXIT_FAILURE);
     }
+    close(fd);
 }
 
 FILE * getFilePointer(char *inputFileName) {
