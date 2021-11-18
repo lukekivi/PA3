@@ -50,27 +50,31 @@ void *consumer(void *arg){
 
     // keep reading from queue and process the data
     while(1){
-        sem_wait(&staged);
-        sem_wait(&mutexQueue);
-        struct Node* n = dequeue(q);
-        sem_post(&mutexQueue);
-        // Log consumer id: line number
+      sem_wait(&staged);
+      sem_wait(&mutexQueue);
+      struct Node* n = dequeue(q);
+      sem_post(&mutexQueue);
+      if (mode == 2 || mode == 3) {
+        sem_post(&queueNodes);
+      }
 
-        if (mode == 1 || mode == 3) {
-          char* pattern = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
-          sprintf(pattern, "consumer %d: line %d\n", *consumerId, n->packet->lineCount);
-          writeLineToFile(logDir, pattern);
-          free(pattern);
-        }
+      // Log consumer id: line number
+
+      if (mode == 1 || mode == 3) {
+        char* pattern = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
+        sprintf(pattern, "consumer %d: line %d\n", *consumerId, n->packet->lineCount);
+        writeLineToFile(logDir, pattern);
+        free(pattern);
+      }
 
 
-        if (n->packet->lineCount == -1) {
-            return NULL;
-        }
+      if (n->packet->lineCount == -1) {
+        return NULL;
+      }
 
-        parse(n->packet->line);
+      parse(n->packet->line);
 
-        free(n);
+      free(n);
     }
 
     return NULL;

@@ -13,7 +13,7 @@ void *producer(void *arg){
     ssize_t nread;
     char* buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     size_t len = chunkSize;
-    int lineCount = 0;
+    int lineCount = -1;
     int ACCOUNT_INFO_MAX_LENGTH = 32;
 
     // Log
@@ -41,6 +41,9 @@ void *producer(void *arg){
         free(producerLine);
       }
 
+      if (mode == 2 || mode == 3) {
+        sem_wait(&queueNodes);
+      }
       sem_wait(&mutexQueue);
       enqueue(q, n);
       sem_post(&mutexQueue);
@@ -63,7 +66,9 @@ void *producer(void *arg){
       n->packet = p;
       n->next = NULL;
 
-
+      if (mode == 2 || mode == 3) {
+        sem_wait(&queueNodes);
+      }
       sem_wait(&mutexQueue);
       enqueue(q, n);
       sem_post(&mutexQueue);
