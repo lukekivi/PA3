@@ -93,10 +93,13 @@ struct Queue* initQueue() {
 
 /* Add node to the bottom of a queue */
 void enqueue(struct Queue* q, struct Node* node) {
+
     if (q->tail == NULL) {
+        // case where q is empty
         q->tail = node;
         q->head->next = node;
     } else {
+        // case where q has been started
         struct Node *temp = q->tail;
         temp->next = node;
         q->tail = node;
@@ -106,12 +109,13 @@ void enqueue(struct Queue* q, struct Node* node) {
 /* Pop node from queue */
 struct Node* dequeue(struct Queue* q) {
     if (q->head->next == NULL) {
+        // q is empty
         return NULL;
     }
 
     struct Node *temp = q->head->next;
-
     if (q->head->next == q->tail) {
+        // last element removed
         q->tail = NULL;
     }
 
@@ -128,14 +132,16 @@ void freeNode(struct Node* node) {
     } else {
         if (node->packet != NULL) {
             free(node->packet->line);
-            free(node->packet);    
+            node->packet->line = NULL;
+            free(node->packet); 
+            node->packet = NULL;   
         }
         node->next = NULL;        
         free(node);
     }
 }
 
-/* free entire queue in case of error */
+/* free entire queue */
 void freeQueue(struct Queue* q) {
     struct Node* curNode = q->head;
     while(curNode != NULL) {
@@ -143,6 +149,8 @@ void freeQueue(struct Queue* q) {
         freeNode(curNode);
         curNode = temp;
     }
+    q->head = NULL;
+    q->tail = NULL;
 
     free(q);
 }

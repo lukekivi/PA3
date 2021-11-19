@@ -16,7 +16,7 @@ void writeBalanceToFiles(void) {
 
     for (int i = 0; i < acctsNum; i++) {
       char line[ACCOUNT_INFO_MAX_LENGTH]; 
-      sprintf(line, "%d\t%lf\n", i, balance[i]);      // add account number and balance.
+      sprintf(line, "%d\t%lf\n", i, balance[i]);        // add account number and balance.
       totalChange += balance[i];                        // add to total change for bottom of the file.
 
         int ret = write(fd, line, strlen(line));
@@ -42,17 +42,10 @@ void writeBalanceToFiles(void) {
 
 int main(int argc, char *argv[]) {
 
-    // Time Testing
-
-    // double cpu_time;
-    // clock_t begin, end;
-    //
-    // begin = clock();
-
     nConsumers = 0;                // Number of consumer threads to be created.
-    char* path = NULL;             // Path of input file
-    mode = 0;                  // App mode that specifies use of bounded buffer or log output
-    queueBufferSize = -1;           // initialized with an invalid value
+    FILE* fp = NULL;               // fp for input file
+    mode = 0;                      // App mode that specifies use of bounded buffer or log output
+    queueBufferSize = -1;          // initialized with an invalid value
 
     // Argument check
     if (argc < 3) {
@@ -60,7 +53,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     } else {
 
-        // First argument should be an the number of consumer threads the user desires to create
+        // First argument should be the number of consumer threads the user desires to create
         if (isDigits(argv[1]) == -1) {
             fprintf(stderr, "ERROR: first argument \"%s\" should be an integer.\n",argv[1]);
             exit(EXIT_FAILURE);
@@ -69,7 +62,12 @@ int main(int argc, char *argv[]) {
         }
 
         // Second argument is the path for the input file
-        path = argv[2];
+        fp = fopen(argv[2], "r");
+
+        if (fp == NULL) {
+            fprintf(stderr, "ERROR: failed to open file \"%s\"\n", argv[2]);
+            exit(EXIT_FAILURE);
+        }
 
         // If there are more than 3 arguments there is a mode specification
         if (argc > 3) {
@@ -105,16 +103,10 @@ int main(int argc, char *argv[]) {
      * - 2: use a bounded buffer.
      * - 3: generate log output and use a bounded buffer.
      */
+
     bookeepingCode();
-    // Initialize global variables, like shared queue
 
-    FILE* fp = fopen(path, "r");
-
-    if (fp == NULL) {
-        fprintf(stderr, "ERROR: failed to open file \"%s\"\n", path);
-        exit(EXIT_FAILURE);
-    }
-
+    // Initialize global variables
     q = initQueue();
 
     for (int i = 0; i < acctsNum; i++) {
@@ -123,6 +115,7 @@ int main(int argc, char *argv[]) {
     sem_init(&mutexQueue, 0, 1);
     sem_init(&staged, 0, 0);
 
+    // if using a bounded buffer, initialize its semaphore
     if (mode == 2 || mode == 3) {
         sem_init(&queueNodes, 0, queueBufferSize);
     }
@@ -131,34 +124,36 @@ int main(int argc, char *argv[]) {
     pthread_t producerThread;
     pthread_t consumerThreads[nConsumers];
 
-    pthread_create(&producerThread, NULL, producer, fp);
-    int* index = (int*) malloc(sizeof(int));
-    for (int i = 0; i < nConsumers; i++) {
-        *index = i;
-        pthread_create(&consumerThreads[i], NULL, consumer, index);
-        index = (int*) malloc(sizeof(int));
+    if (pthread_create(&producerThread, NULL, producer, fp) != 0) {
+        fprintf(stderr, "ERROR: Failed to start producer thread\n");
+        freeQueue(q);
+        exit(EXIT_FAILURE);
     }
-    index = NULL;
+
+    int* ids[nConsumers];
+    for (int i = 0; i < nConsumers; i++) {
+        ids[i] = (int *) malloc(sizeof(int));
+        *ids[i] = i;
+        if (pthread_create(&consumerThreads[i], NULL, consumer, ids[i]) != 0) {
+            fprintf(stderr, "ERROR: Failed to start a consumer thread\n");
+            freeQueue(q);
+            exit(EXIT_FAILURE);
+        }
+    }
+    
     // wait for all threads to complete execution
-    //printf("launching producer\n");
     pthread_join(producerThread, NULL);
 
     for (int i = 0; i < nConsumers; i++) {
-        //printf("launching consumer %d\n", i);
         pthread_join(consumerThreads[i], NULL);
+        free(ids[i]);
     }
 
     //Write the final output
     writeBalanceToFiles();
 
+    freeQueue(q);
     fclose(fp);
-
-    // Time testing
-
-    // end = clock();
-    // cpu_time = (double)(end - begin) / CLOCKS_PER_SEC;
-    // printf("TOTAL TIME: %lf\n", cpu_time);
-
 
     return 0;
 }

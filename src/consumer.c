@@ -42,40 +42,42 @@ void *consumer(void *arg){
 
     // Log
     if (mode == 1 || mode == 3) {
-      char * consumerLog = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
-      sprintf(consumerLog, "consumer %d\n", *consumerId);
-      writeLineToFile(logDir, consumerLog);
-      free(consumerLog);
+        char * consumerLog = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
+        sprintf(consumerLog, "consumer %d\n", *consumerId);
+        writeLineToFile(logDir, consumerLog);
+        free(consumerLog);
     }
 
     // keep reading from queue and process the data
     while(1){
-      sem_wait(&staged);
-      sem_wait(&mutexQueue);
-      struct Node* n = dequeue(q);
-      sem_post(&mutexQueue);
-      if (mode == 2 || mode == 3) {
-        sem_post(&queueNodes);
-      }
+        sem_wait(&staged);
+        sem_wait(&mutexQueue);
+        struct Node* n = dequeue(q);
+        sem_post(&mutexQueue);
+        if (mode == 2 || mode == 3) {
+            sem_post(&queueNodes);
+        }
 
-      // Log consumer id: line number
+        // Log consumer id: line number
 
-      if (mode == 1 || mode == 3) {
-        char* pattern = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
-        sprintf(pattern, "consumer %d: line %d\n", *consumerId, n->packet->lineCount);
-        writeLineToFile(logDir, pattern);
-        free(pattern);
-      }
+        if (mode == 1 || mode == 3) {
+            char* pattern = (char*)malloc(ACCOUNT_INFO_MAX_LENGTH*sizeof(char));
+            sprintf(pattern, "consumer %d: line %d\n", *consumerId, n->packet->lineCount);
+            writeLineToFile(logDir, pattern);
+            free(pattern);
+        }
 
 
-      if (n->packet->lineCount == -1) {
-        return NULL;
-      }
+          if (n->packet->lineCount == -1) {
+            return NULL;
+        }
 
-      parse(n->packet->line);
+        parse(n->packet->line);
 
-      free(n);
+        freeNode(n);
     }
+
+    consumerId = NULL;
 
     return NULL;
 }

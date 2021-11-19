@@ -75,6 +75,8 @@ void *producer(void *arg){
       sem_post(&staged);
     }
 
+    buffer = NULL;
+
     // cleanup and exit
     return NULL;
 }
