@@ -11,12 +11,12 @@ void *producer(void *arg){
     // open the file and read its content line by line
     FILE * fd_in = (FILE*)arg; //  file we are reading from; will be passed in
     ssize_t nread;
-    char* buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
+    char* buffer = (char *) malloc(sizeof(char) * chunkSize);
     size_t len = chunkSize;
     int lineCount = -1;
     int ACCOUNT_INFO_MAX_LENGTH = 32;
 
-    // Log
+    // Log producer
     if (mode == 1 || mode == 3) {
       writeLineToFile(logDir, "producer\n");
     }
@@ -34,6 +34,7 @@ void *producer(void *arg){
       n->next = NULL;
       n->packet = p;
 
+      // Log producer : line
       if (mode == 1 || mode == 3) {
         char* producerLine = (char*)malloc(sizeof(char)*ACCOUNT_INFO_MAX_LENGTH);
         sprintf(producerLine, "producer: line %d\n", lineCount);
@@ -41,6 +42,7 @@ void *producer(void *arg){
         free(producerLine);
       }
 
+      // Extra semaphore if in bound buffer mode
       if (mode == 2 || mode == 3) {
         sem_wait(&queueNodes);
       }
@@ -53,8 +55,10 @@ void *producer(void *arg){
       buffer = (char *) malloc(sizeof(char) * chunkSize); // chunk size for now
     }
 
+    // Creation of special EOF packet to send to consumers.
     char * producerEOF = "producer: line -1\n";
     for (int i = 0; i < nConsumers; i++) {
+      // Log producer: line -1
       if (mode == 1 || mode == 3) {
         writeLineToFile(logDir, producerEOF);
       }
@@ -66,6 +70,7 @@ void *producer(void *arg){
       n->packet = p;
       n->next = NULL;
 
+      // Extra semaphore if in bound buffer mode
       if (mode == 2 || mode == 3) {
         sem_wait(&queueNodes);
       }
