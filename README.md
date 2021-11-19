@@ -1,5 +1,5 @@
 # Project #3 – Multithreading
-* Lab machine name used to test your program
+* test machine: csel-broccoli.cselabs.umn.edu
 
 ** Group Details
     - #45
